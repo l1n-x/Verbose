@@ -7,7 +7,6 @@ from kivy.config import Config
 
 Config.set('kivy','keyboard_mode','systemanddock')
 #360x640 - Комп, 1080x1920 - Смарт
-hello_world = 1
 Window.size = (1080,1920)
 
 class Container(GridLayout):
