@@ -1,0 +1,3 @@
+title=Verbose
+author=Roman Sarkisyan
+orientation=portrait
