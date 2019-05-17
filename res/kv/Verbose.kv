@@ -1,0 +1,117 @@
+#:import MDToolbar kivymd.toolbar.MDToolbar
+#:import ScreenManager kivy.uix.screenmanager
+#:import Screen kivy.uix.screenmanager
+#:import MDTextField kivymd.textfields.MDTextField
+#:import RGBA kivy.utils.rgba
+
+<Message@FloatLayout>:
+    message_id: -1
+    bg_color: '#223344'
+    side: 'left'
+    text: ''
+    size_hint_y: None
+    _size: 0, 0
+    Label:
+        text: root.text
+        font_size:'20sp'
+        padding: 10, 10
+        size_hint: None, 1
+        size: root._size
+        on_texture_size:
+            message = dict(app.messages[root.message_id])
+            message['_size'] = self.texture_size
+            app.messages[root.message_id] = message
+        pos_hint:
+            (
+            {'x': 0, 'center_y': .5}
+            if root.side == 'left' else
+            {'right': 1, 'center_y': .5}
+            )
+        canvas.before:
+            Color:
+                rgba: RGBA(root.bg_color)
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+                radius: 17, 17, 17, 17
+
+
+BoxLayout:
+    orientation:'vertical'
+    MDToolbar:
+        id: toolbar
+        title: 'Verbose'
+        md_bg_color: app.theme_cls.primary_color
+        background_palette: 'Primary'
+        background_hue: '500'
+        elevation: 10
+        size_hint_y: None
+    ScreenManager:
+        Screen:
+            BoxLayout:
+                orientation:'vertical'
+                padding: 10,10               
+                RecycleView:
+                    id:msg_store
+                    data:app.messages
+                    viewclass: 'Message'
+                    do_scroll_x: False
+                    RecycleBoxLayout:
+                        id:rbox
+                        orientation:'vertical'
+                        size_hint_y: None
+                        size: self.minimum_size
+                        default_size_hint: 1, None
+                        key_size:'_size'
+                FloatLayout:
+                    size_hint_y: None
+                    height: 0
+                    Button:
+                        size_hint_y: None
+                        height:self.texture_size[1]
+                        opacity: 0 if not self.height else 1
+                        text: 'В конец истории' if msg_store.height < rbox.height and msg_store.scroll_y > 0 else ''
+                        pos_hint: {"pos":(0,0)}
+                        on_press: app.scroll_bottom()
+
+            BoxLayout:
+                size_hint: 1, None
+                MDTextField:
+                    id:msg
+                    size_hint: 1, None
+                    font_size:'20sp'
+                    hint_text:'Ваше сообщение'
+                    on_text_validate: 
+                        app.send_message(msg.text),
+                        msg.text = ''
+
+                MDIconButton:
+                    icon: 'send'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.primary_color       
+                    on_press: 
+                        app.send_message(msg.text),
+                        msg.text = ''
+                       
+    BoxLayout:
+        id: bottom_menu
+        orientation:'horizontal'
+        size_hint_y: None
+        height: 40
+        padding: 5
+        MDIconButton:
+            icon:'home'
+            theme_text_color: 'Custom'
+            text_color: app.theme_cls.primary_color
+        MDIconButton:
+            icon:'account'
+            theme_text_color: 'Custom'
+            text_color: app.theme_cls.primary_color
+        MDIconButton:
+            icon:'settings'
+            theme_text_color: 'Custom'
+            text_color: app.theme_cls.primary_color
+        MDIconButton:
+            icon:'information'
+            theme_text_color: 'Custom'
+            text_color: app.theme_cls.primary_color
