@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+#:import License libs.uix.baseclass.license.License
+
+
+<License>:
+    name: 'license'
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(10), dp(10)
+        spacing: dp(10)
+
+        Label:
+            size_hint: None, None
+            height: dp(20)
+            width: self.texture_size[0]
+            halign: 'left'
+            color: app.theme_cls.primary_color
+            font_size: '20sp'
+            text: 'MIT LICENSE'
+
+        Image:
+            source: 'data/images/xxxhdpi.png'
+
+        ScrollView:
+
+            Label:
+                id: text_license
+                font_size: '14sp'
+                text_size: self.width, None
+                size_hint_y: None
+                markup: True
+                height: self.texture_size[1]

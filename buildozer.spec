@@ -22,7 +22,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-#source.exclude_dirs = tests, bin
+source.exclude_dirs = Verbose, bin
 
 # (list) List of exclusions using pattern matching
 #source.exclude_patterns = license,images/*/*.jpg
@@ -36,20 +36,20 @@ version = 0.0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,git+https://github.com/HeaTTheatR/KivyMD.git
+requirements = python3,android,kivy,kivymd
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
-# requirements.source.kivy = ../../kivy
+requirements.source.kivymd = %(source.dir)s/KivyMD
 
 # (list) Garden requirements
 #garden_requirements =
 
 # (str) Presplash of the application
-presplash.filename = %(source.dir)s/res/images/presplash.png
+presplash.filename = %(source.dir)s/data/images/presplash.png
 
 # (str) Icon of the application
-icon.filename = %(source.dir)s/res/images/icon.png
+icon.filename = %(source.dir)s/data/images/icon.png
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = portrait
@@ -85,7 +85,7 @@ fullscreen = 0
 android.presplash_color = #2196F3
 
 # (list) Permissions
-android.permissions = INTERNET
+android.permissions = INTERNET, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE
 
 # (int) Target Android API, should be as high as possible.
 #android.api = 27
@@ -103,7 +103,7 @@ android.permissions = INTERNET
 #android.ndk_api = 21
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
-#android.private_storage = True
+android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
 #android.ndk_path =

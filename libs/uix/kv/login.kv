@@ -1,0 +1,124 @@
+# -*- coding: ut-8 -*-
+#:import MDFillRoundFlatButton kivymd.button.MDFillRoundFlatButton
+#:import MDLabel kivymd.label.MDLabel
+#:import MDTextFieldRound kivymd.textfields.MDTextFieldRound
+
+<Login>:
+    name: 'login'
+
+    FloatLayout:
+        canvas:
+            Rectangle:
+                size: self.size
+                pos: self.pos
+                source: 'data/images/background.png'
+
+    BoxLayout:
+        id: box_top
+        orientation: 'vertical'
+        size_hint: None, None
+        size: self.minimum_size
+        pos_hint: {'center_x': .5, 'top': 1}
+        padding: dp(5)
+
+        BoxLayout:
+            spacing: dp(5)
+            size_hint_y: None
+            height: dp(20)
+
+            Widget:
+
+        Widget:
+            size_hint_y: None
+            height: dp(5)
+
+        Label:
+            markup: True
+            text: '[size=35sp]Verbose[/size]'
+            size_hint: None, None
+            size: self.texture_size
+            bold: True
+        
+        BoxLayout:
+            spacing: dp(5)
+            size_hint: None, None
+            size: self.minimum_size
+
+            Label:
+                markup: True
+                text: '[size=20sp]Messenger for you[/size]'
+                size_hint: None, None
+                size: self.texture_size
+                bold: True
+
+        Widget:
+            size_hint_y: None
+            height: dp(20)
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: None, None
+        size: self.minimum_size
+        spacing: dp(10)
+        pos_hint: {'center_x': .5}
+        y: box_top.height - dp(50)
+
+        MDTextFieldRound:
+            id: field_phone
+            hint_text: 'Телефон'
+            icon_right: 'phone'
+            icon_type: 'right'
+        
+        MDTextFieldRound:
+            id: field_password
+            hint_text: 'Пароль'
+            icon_right: 'key-variant'
+            icon_type: 'right'
+            password: True
+
+        MDLabel:
+            text: 'Забыли пароль?'
+            size_hint_y: None
+            height: self.texture_size[1]
+            color: 1, 1, 1, 1
+            halign: 'center'
+
+        Widget:
+            size_hint_y: None
+            height: dp(10) 
+
+        MDFillRoundFlatButton:
+            text: 'ВОЙТИ'
+            pos_hint: {'center_x': .5}
+            on_release: app.show_profile()
+            canvas:
+                Color:
+                    rgba: 1,1,1,.3
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: 17, 17, 17, 17
+
+        Widget:
+            size_hint_y: None
+            height: dp(35)
+
+    BoxLayout:
+        size_hint_y: None
+        height: self.minimum_height
+        padding: dp(5)
+
+        canvas:
+            Color:
+                rgba: 0, 0, 0, .3
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        MDLabel:
+            text: 'Ещё нет аккаунта? Зарегистрируйтесь!'
+            size_hint_y: None
+            height: self.texture_size[1]
+            color: 1, 1, 1, 1
+            halign: 'center'
+            font_style: 'Caption'

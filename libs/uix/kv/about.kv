@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+
+<About>:
+    name: 'about'
+
+    FloatLayout:
+        Image:
+            source: 'data/images/xxxhdpi.png'
+            size: self.texture_size
+            opacity: .4
+
+        BoxLayout:
+            id: box
+            orientation: 'vertical'
+            padding: dp(0), dp(10)
+
+            Label:
+                id: label
+                font_size: '14sp'
+                bold: True
+                color: 0, 0, 0, 1
+                markup: True
+                halign: 'center'
+                on_ref_press: root.open_url(*args)
+    

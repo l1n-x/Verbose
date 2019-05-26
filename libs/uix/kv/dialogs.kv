@@ -1,0 +1,50 @@
+# -*- coding: ut-8 -*-
+#:import MDList kivymd.list.MDList
+#:import MDLabel kivymd.label.MDLabel
+#:import OneLineAvatarIconListItem kivymd.list.OneLineAvatarIconListItem
+
+<DialogsItem@OneLineAvatarIconListItem>:
+    MyAvatar:
+        source: 'data/images/none_avatar.png'
+
+<Dialogs>:
+    name: 'dialogs'
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        ScrollView:
+            MDList:
+                id: scroll
+                
+                DialogsItem:
+                    text: 'Пользователь 1'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 2'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 3'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 4'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 5'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 6'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 7'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 8'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 9'
+                    on_press: app.show_corresp(self.text)
+                DialogsItem:
+                    text: 'Пользователь 10'
+                    on_press: app.show_corresp(self.text)
+    

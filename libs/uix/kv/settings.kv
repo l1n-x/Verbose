@@ -1,0 +1,27 @@
+# -*- coding: ut-8 -*-
+
+<SettingsScreen>:
+    name: 'settings'
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: None
+        height: dp(80)
+        center_y: self.parent.center_y
+
+        MDRaisedButton:
+            size_hint: None, None
+            size: 3 * dp(48), dp(48)
+            center_x: self.parent.center_x
+            text: 'Сменить тему'
+            on_release: app.theme_pick()
+            opposite_colors: True
+            pos_hint: {'center_x': .5}
+        MDLabel:
+            text:
+                "Текущая тема: " + app.theme_cls.theme_style\
+                + ", " + app.theme_cls.primary_palette
+            theme_text_color: 'Primary'
+            pos_hint: {'center_x': .5}
+            halign: 'center'
+    
