@@ -1,42 +1,48 @@
 #!/usr/bin/env python3
 #Python Libraries
-import socket, os, sys, threading
+from os import path, listdir
+import socket
+from sys import argv
+import threading
+
 #Kivy Libraries
 import kivy
-from kivy.app import App
-from kivy.metrics import dp
-from kivy.lang import Builder
-from kivy.factory import Factory
-from kivy.uix.image import Image
-from kivy.core.window import Window
 from kivy.animation import Animation
+from kivy.app import App
+from kivy.core.window import Window
+from kivy.factory import Factory
+from kivy.lang import Builder
+from kivy.metrics import dp
+from kivy.properties import ListProperty, ObjectProperty, StringProperty
+from kivy.uix.image import Image
 from kivy.utils import get_color_from_hex, get_hex_from_color
-from kivy.properties import ListProperty,ObjectProperty,StringProperty
-#KivyMD Libraries
-from kivymd.theming import ThemeManager
 from kivymd.pickers import MDThemePicker
+from kivymd.theming import ThemeManager
 from kivymd.utils.cropimage import crop_image
+
 #Android Libraries
 # from jnius import autoclass
 # from android.runnable import run_on_ui_thread
+
 #Custom Libraries
 from libs.uix.baseclass.startscreen import StartScreen
 
-directory = os.path.split(os.path.abspath(sys.argv[0]))[0]
+directory = path.split(path.abspath(argv[0]))[0]
 
-def thread(my_func):
-    '''@thread - Запуск метода в потоке'''
-    def wrapper (*args, **kwargs):
-        my_thread = threading.Thread(target = my_func, args = args, kwargs = kwargs)
-        my_thread.start()
-    return wrapper
+# def thread(my_func):
+#     '''@thread - Запуск метода в потоке'''
+#     def wrapper (*args, **kwargs):
+#         my_thread = threading.Thread(target = my_func, args = args, kwargs = kwargs)
+#         my_thread.start()
+#     return wrapper
 
 class VerboseApp(App):
     theme_cls = ThemeManager()
     theme_cls.primary_palette = 'Blue'
     theme_cls.theme_style = 'Light'
+    m_press = get_color_from_hex('#000080')
     messages = ListProperty()
-
+    
     # @run_on_ui_thread
     # def _set_keyboard(self):
     #     python_activity = autoclass('org.kivy.android.PythonActivity').mActivity
@@ -49,29 +55,34 @@ class VerboseApp(App):
         super(VerboseApp, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.events_program)
         Window.soft_input_mode = 'below_target'
+        #self.use_kivy_settings = False
         self.list_previous_screens = ['profile']
         self.window = Window
         self.manager = None
         self.md_theme_picker = None
         self.shutdown = False
-        self.join = False
+        self.server = ("185.20.225.163",9090)
         self.host = socket.gethostbyname(socket.gethostname())
         self.port = 0
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        self.s.connect((self.host,self.port))
+        self.s.connect(self.server)
         self.s.setblocking(0)
+        self.s.sendto(("I'm here!").encode("utf-8"),(self.server))
+    
+    # def open_settings(self, *largs): #Отключение настроек Kivy
+    #     pass
 
     def build(self):
-        self.load_all_kv_files(os.path.join(self.directory, 'libs', 'uix', 'kv'))
-        #self._set_keyboard()
+        self.load_all_kv_files(path.join(self.directory, 'libs', 'uix', 'kv'))
+        # self._set_keyboard()
         self.screen = StartScreen()
         self.manager = self.screen.ids.manager
         return self.screen
 
     def load_all_kv_files(self, directory_kv_files):
-        for kv_file in os.listdir(directory_kv_files):
-            kv_file = os.path.join(directory_kv_files, kv_file)
-            if os.path.isfile(kv_file):
+        for kv_file in listdir(directory_kv_files):
+            kv_file = path.join(directory_kv_files, kv_file)
+            if path.isfile(kv_file):
                 with open(kv_file, encoding='utf-8') as kv:
                     Builder.load_string(kv.read())
 
@@ -87,10 +98,8 @@ class VerboseApp(App):
         if event in (1001, 27):
             try:
                 self.manager.current = self.list_previous_screens.pop()
-                self.manager.transition.direction = 'left'
             except:
                 self.manager.current = 'profile'
-                self.manager.transition.direction = 'right'
 
     def on_start(self):
         self.rect = threading.Thread(target=self.receving,args = ("RecvThread",self.s))
@@ -102,45 +111,24 @@ class VerboseApp(App):
         self.s.close()
 
     def show_profile(self,*args):
-        if self.manager.current in ('about','license','settings','dialogs'):
-            self.manager.current = 'profile'
-            self.manager.transition.direction = 'right'
-        else:
-            self.manager.current = 'profile'
-            self.manager.transition.direction = 'left'
+        self.manager.current = 'profile'
         self.screen.ids.action_bar.title = 'Профиль'
             
     def show_dialogs(self,*args):
-        if self.manager.current in ('about','license', 'settings'):
-            self.manager.current = 'dialogs'
-            self.manager.transition.direction = 'right'
-        else:
-            self.manager.current = 'dialogs'
-            self.manager.transition.direction = 'left'
+        self.manager.current = 'dialogs'
         self.screen.ids.action_bar.title = 'Сообщения'
 
     def show_corresp(self,username,*args):
         self.manager.current = 'corresp'
-        self.manager.transition.direction = 'left'
         self.screen.ids.action_bar.title = username
 
     def show_settings(self,*args):
-        if self.manager.current in ('about','license'):
-            self.manager.current = 'settings'
-            self.manager.transition.direction = 'right'
-        else:
-            self.manager.current = 'settings'
-            self.manager.transition.direction = 'left'
+        self.manager.current = 'settings'
         self.screen.ids.action_bar.title = 'Настройки'
         
     def show_license(self,*args):
-        self.screen.ids.license.ids.text_license.text = open(os.path.join(self.directory, 'LICENSE'), encoding='utf-8').read()
-        if self.manager.current in ('about'):
-            self.manager.current = 'license'
-            self.manager.transition.direction = 'right'
-        else:
-            self.manager.current = 'license'
-            self.manager.transition.direction = 'left'
+        self.screen.ids.license.ids.text_license.text = open(path.join(self.directory, 'LICENSE'), encoding='utf-8').read()
+        self.manager.current = 'license'
         self.screen.ids.action_bar.title = 'Лицензия MIT'
     
     def show_about(self,*args):
@@ -158,7 +146,6 @@ class VerboseApp(App):
                 link_color=get_hex_from_color(self.theme_cls.primary_color)
                 )
         self.manager.current = 'about'
-        self.manager.transition.direction = 'left'
         self.screen.ids.action_bar.title = 'О нас'
 
     def theme_pick(self):
@@ -201,9 +188,10 @@ class VerboseApp(App):
     def sending(self,text):
         try:
             if text != "":
-                self.s.sendto((text).encode("utf-8"),("127.0.1.1",9090))
+                self.s.sendto((text).encode("utf-8"),(self.server))
         except:
             pass
+
 def main():
     VerboseApp().run()
 

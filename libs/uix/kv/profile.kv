@@ -21,3 +21,37 @@
                 text: 'Номер телефона'
             PLabel:
                 text: 'О себе'
+        
+        BoxLayout:
+            height: self.minimum_height
+            pos_hint: {'center_x': .5}
+            size_hint: (None, None)
+            size: self.minimum_size
+            top: self.height
+            spacing: (dp(15), 0)
+            padding: [0, 0, 0, 5]
+            MDIconButton:
+                icon:'account'
+                theme_text_color: 'Custom'
+                text_color: app.m_press
+                on_press: app.show_profile()
+            MDIconButton:
+                icon:'message'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.primary_color
+                on_press: app.show_dialogs()
+            MDIconButton:
+                icon:'settings'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.primary_color
+                on_press: app.show_settings()
+            MDIconButton:
+                icon:'book'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.primary_color
+                on_press: app.show_license()
+            MDIconButton:
+                icon:'information'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.primary_color
+                on_press: app.show_about()
