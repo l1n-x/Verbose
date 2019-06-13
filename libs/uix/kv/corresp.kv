@@ -1,8 +1,6 @@
 # -*- coding: ut-8 -*-
 #:import Window kivy.core.window.Window
-#:import MDTextField kivymd.textfields.MDTextField
 #:import RGBA kivy.utils.rgba
-#:import MDFillRoundFlatButton kivymd.button.MDFillRoundFlatButton
 <OneLine@BoxLayout>:
     size_hint: 1, None
     height: dp(2)
@@ -91,5 +89,5 @@
 	            theme_text_color: 'Custom'
 	            text_color: app.theme_cls.primary_color       
 	            on_press:
-	                app.send_message(msg.text),
-                    root.refresh_field(msg)
+	                app.send_message(msg.text)
+                    msg.text = ''

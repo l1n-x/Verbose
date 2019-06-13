@@ -5,7 +5,6 @@ import socket
 from sys import argv
 import threading
 import sqlite3
-
 #Kivy Libraries
 import kivy
 from kivy.animation import Animation
@@ -16,11 +15,9 @@ from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.properties import ListProperty, ObjectProperty, StringProperty
 from kivy.uix.image import Image
-from kivy.utils import get_color_from_hex, get_hex_from_color
-from kivymd.pickers import MDThemePicker
+from kivy.utils import get_color_from_hex, get_hex_from_color, platform
 from kivymd.theming import ThemeManager
 from kivymd.utils.cropimage import crop_image
-from plyer import notification
 #Custom Libraries
 from libs.uix.baseclass.startscreen import StartScreen
 
@@ -36,13 +33,14 @@ class VerboseApp(App):
     theme_cls.theme_style = cur.fetchone()[0]
     server = ("185.20.225.163",9090)
     messages = ListProperty()
-    
+
     def __init__(self, **kwargs):
         self.title = 'Verbose'
-        self.icon = 'data/images/icon.png'
+        self.icon = 'data/images/icon.ico'
         super(VerboseApp, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.back_screen)
         self.userinfo()
+        self.history()
         self.use_kivy_settings = False
         self.list_previous_screens = ['profile']
         self.window = Window
@@ -52,6 +50,21 @@ class VerboseApp(App):
         self.s.connect(self.server)
         self.s.setblocking(0)
         self.s.sendto(("I'm here!").encode("utf-8"),(self.server))
+
+    def history(self):
+        for row in self.cur.execute("SELECT * FROM Messages"):
+            self.messages.append({
+            'message_id': len(self.messages),
+            'text': row[1],
+            'side': row[2],
+            'bg_color': row[3]
+            })
+            self.msg_count = row[0]
+
+    def sync_history(self):
+        for x in range(self.msg_count,len(self.messages)):
+            self.cur.execute("INSERT INTO Messages(Message, Side, Color) VALUES (?,?,?)",(self.messages[x]['text'],self.messages[x]['side'],self.messages[x]['bg_color']))
+        self.conn.commit()
 
     def theme(self,style):       
         if style == 'Dark':
@@ -100,33 +113,33 @@ class VerboseApp(App):
         return True
 
     def on_start(self):
-        pass
-        # self.rect = threading.Thread(target=self.receving,args = ("RecvThread",self.s))
-        # self.rect.start()
+        self.rect = threading.Thread(target=self.receving,args = ("RecvThread",self.s))
+        self.rect.start()
 
     def on_stop(self):
-        self.theme(self.theme_cls.theme_style)
-        self.shutdown = False
-        # self.rect.join()
+        self.shutdown = True
         self.conn.close()
+        self.rect.join()
+        self.s.sendto(("I'm leave!").encode("utf-8"),(self.server))
         self.s.close()
 
-    def on_pause(self):
-        self.theme(self.theme_cls.theme_style)
+    def show_login(self,*args):
+        self.manager.current = 'login'
+        self.screen.ids.action_bar.title = 'Verbose'
 
     def show_profile(self,*args):
         self.manager.current = 'profile'
         self.screen.ids.action_bar.title = 'Профиль'
-        notification.notify(title = 'Новое сообщение',message = 'Привет друг!', app_name = 'Verbose', app_icon = 'data/images/icon.ico')
             
     def show_dialogs(self,*args):
         self.manager.current = 'dialogs'
         self.screen.ids.action_bar.title = 'Сообщения'
-        
+          
     def show_corresp(self,username,*args):
         self.manager.current = 'corresp'
         self.screen.ids.action_bar.title = username
         self.list_previous_screens.append('dialogs')
+        self.scroll_bottom()
         
     def show_settings(self,*args):
         self.manager.current = 'settings'
@@ -154,6 +167,10 @@ class VerboseApp(App):
         self.manager.current = 'about'
         self.screen.ids.action_bar.title = 'О нас'
 
+    def scroll_bottom(self):
+        Animation.cancel_all(self.screen.ids.corresp.ids.msg_store, 'scroll_y')
+        Animation(scroll_y=0, t='out_quad', d=.5).start(self.screen.ids.corresp.ids.msg_store)
+
     def add_message(self, text, side, color):
         self.messages.append({
             'message_id': len(self.messages),
@@ -164,34 +181,30 @@ class VerboseApp(App):
     
     def send_message(self, text):
         self.add_message(text, 'right', '#808080')
-        self.sending(text)
         self.scroll_bottom()
-
+        try:
+            if text != "":
+                self.s.sendto(text.encode("utf-8"),(self.server))
+        except:
+            pass
+        
     def answer(self,text):
         self.add_message(text.decode("utf-8"), 'left', '#4B7F8B')
         self.scroll_bottom()
-
-    def scroll_bottom(self):
-        Animation.cancel_all(self.screen.ids.corresp.ids.msg_store, 'scroll_y')
-        Animation(scroll_y=0, t='out_quad', d=.5).start(self.screen.ids.corresp.ids.msg_store)
     
     def receving(self,name,sock):
         while not self.shutdown:
             try:
                 while True:
                     data, addr = sock.recvfrom(1024)
-                    print(data.decode("utf-8"))
                     if data != '':
                         self.answer(data)
+                    elif data != "I'm here!":
+                        pass
+                    elif data != "I'm leave!":
+                        pass
             except:
                 pass
-
-    def sending(self,text):
-        try:
-            if text != "":
-                self.s.sendto((text).encode("utf-8"),(self.server))
-        except:
-            pass
 
 def main():
     VerboseApp().run()

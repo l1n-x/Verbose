@@ -32,19 +32,24 @@
                     padding: 0,dp(5),0,dp(5)
                     MDFillRoundFlatButton:
                         text: "Тёмная"
-                        halign: "left"
                         size_hint_x: None
                         size: self.size
                         on_press: 
                             app.theme_cls.theme_style = "Dark"
+                            app.theme(app.theme_cls.theme_style)
                     MDFillRoundFlatButton:
                         text: "Светлая"
-                        halign: "left"
                         size_hint_x: None
                         size: self.size
                         on_press: 
                             app.theme_cls.theme_style = "Light"
-
+                            app.theme(app.theme_cls.theme_style)
+                MDFillRoundFlatButton:
+                    text: "Выйти"
+                    size_hint_x: None
+                    size: self.size
+                    on_press: 
+                        app.manager.current = 'login'
 
         BoxLayout:
             height: self.minimum_height

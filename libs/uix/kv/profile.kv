@@ -1,5 +1,6 @@
 # -*- coding: ut-8 -*-
-#: import storagepath plyer.storagepath
+#:import storagepath plyer.storagepath
+#:import MDUserAnimationCard kivymd.useranimationcard.MDUserAnimationCard
 <PLabel@MDLabel>:
     theme_text_color: 'Primary'
     size_hint: 1, None
@@ -41,6 +42,7 @@
                 OneLine:
                 PLabel:
                     text: 'О себе: ' + str(app.user_info['about'])
+                OneLine:
                 PLabel:
                     text: 'Хранилище: ' + str(storagepath.get_application_dir())
         
