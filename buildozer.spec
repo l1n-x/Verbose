@@ -22,7 +22,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = Verbose, bin
+source.exclude_dirs = KivyMD, bin
 
 # (list) List of exclusions using pattern matching
 #source.exclude_patterns = license,images/*/*.jpg
@@ -36,7 +36,7 @@ version = 0.0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,android,kivy,kivymd
+requirements = python3,plyer,android,kivy,kivymd,sqlite3
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes

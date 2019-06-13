@@ -5,20 +5,21 @@
 
     FloatLayout:
         Image:
-            source: 'data/images/xxxhdpi.png'
+            source: 'data/images/icon.png'
             size: self.texture_size
             opacity: .4
+            allow_stretch: True
 
         BoxLayout:
             id: box
             orientation: 'vertical'
             padding: dp(0), dp(10)
 
-            Label:
+            MDLabel:
                 id: label
-                font_size: '14sp'
+                font_size: '16sp'
                 bold: True
-                color: 0, 0, 0, 1
+                theme_text_color: 'Primary'
                 markup: True
                 halign: 'center'
                 on_ref_press: root.open_url(*args)
@@ -53,7 +54,4 @@
                 on_press: app.show_license()
             MDIconButton:
                 icon:'information'
-                theme_text_color: 'Custom'
-                text_color: app.m_press
-                on_press: app.show_about()
-
+                theme_text_color: 'Primary'

@@ -18,7 +18,7 @@
                 id: scroll
                 
                 DialogsItem:
-                    text: 'Общий чат'
+                    text: 'Удаленный пользователь'
                     on_press: app.show_corresp(self.text)
 
         
@@ -37,9 +37,7 @@
                 on_release: app.show_profile()
             MDIconButton:
                 icon:'message'
-                theme_text_color: 'Custom'
-                text_color: app.m_press
-                on_release: app.show_dialogs()
+                theme_text_color: 'Primary'
             MDIconButton:
                 icon:'settings'
                 theme_text_color: 'Custom'

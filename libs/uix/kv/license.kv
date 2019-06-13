@@ -20,14 +20,16 @@
             text: 'MIT LICENSE'
 
         Image:
-            source: 'data/images/xxxhdpi.png'
+            source: 'data/images/icon.png'
+            allow_stretch: True
 
         ScrollView:
 
-            Label:
+            MDLabel:
                 id: text_license
-                font_size: '14sp'
+                font_size: '16sp'
                 text_size: self.width, None
+                theme_text_color: 'Primary'
                 size_hint_y: None
                 markup: True
                 height: self.texture_size[1]
@@ -57,9 +59,7 @@
                 on_press: app.show_settings()
             MDIconButton:
                 icon:'book'
-                theme_text_color: 'Custom'
-                text_color: app.m_press
-                on_press: app.show_license()
+                theme_text_color: 'Primary'
             MDIconButton:
                 icon:'information'
                 theme_text_color: 'Custom'

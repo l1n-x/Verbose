@@ -3,6 +3,15 @@
 #:import MDTextField kivymd.textfields.MDTextField
 #:import RGBA kivy.utils.rgba
 #:import MDFillRoundFlatButton kivymd.button.MDFillRoundFlatButton
+<OneLine@BoxLayout>:
+    size_hint: 1, None
+    height: dp(2)
+    canvas:
+        Color:
+            rgba: app.theme_cls.divider_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
 <Message@FloatLayout>:
     message_id: -1
@@ -12,21 +21,18 @@
     size_hint_y: None
     _size: 0, 0
     Label:
+        id: l
         text: root.text
-        font_size:'16sp'
-        padding: 10, 10
-        size_hint: None, .95
+        font_size:'18sp'
+        color: 1,1,1,1
+        padding: dp(10),dp(10)
+        size_hint: None,.95
         size: root._size
         on_texture_size:
             message = dict(app.messages[root.message_id])
             message['_size'] = self.texture_size
             app.messages[root.message_id] = message
-        pos_hint:
-            (
-            {'x': 0, 'center_y': .5}
-            if root.side == 'left' else
-            {'right': 1, 'center_y': .5}
-            )
+        pos_hint:({'x': 0.01, 'center_y': .5} if root.side == 'left' else {'right': .99, 'center_y': .5})
         canvas.before:
             Color:
                 rgba: RGBA(root.bg_color)
@@ -39,7 +45,7 @@
     name: 'corresp'
     BoxLayout:
         orientation:'vertical'
-        padding: dp(10),dp(10),dp(10),0               
+        padding: 0,dp(10),0,0               
         RecycleView:
             id:msg_store
             data:app.messages
@@ -56,40 +62,34 @@
             size_hint_y: None
             height: 0
             MDFillRoundFlatButton:               
-                size_hint_y: None
+                size_hint: 1, None
                 opacity: 0 if not self.text != '' else .8
                 text: 'В конец истории' if msg_store.height < rbox.height and msg_store.scroll_y > 0 else ''
+                theme_text_color: 'Primary'
                 pos_hint: {"center_x":.5,"y":0}
                 on_press: app.scroll_bottom()
 
-        BoxLayout:
-            size_hint: 1, None
-            height: dp(2)
-            canvas:
-                Color:
-                    rgba: app.theme_cls.divider_color
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
+        OneLine:
+            
 	    BoxLayout:
 	        size_hint: 1, None
         	height: self.minimum_height       	
-	        size: self.minimum_size
-                                    
+	        size: self.minimum_size                       
 	        MDTextField:
 	            id:msg
 	            size_hint: 1, None
-	            font_size: "16sp"
+	            font_size: "18sp"
                 hint_text: 'Ваше сообщение'
-                multiline: False
-	            on_text_validate: 
-	                app.send_message(msg.text),
-	                msg.text = ''
+                multiline: True
+	            # on_text_validate: 
+	            #     app.send_message(msg.text),
+                #     msg.focus = True,
+	            #     msg.text = ''
 
 	        MDIconButton:
 	            icon: 'send'
 	            theme_text_color: 'Custom'
 	            text_color: app.theme_cls.primary_color       
-	            on_press: 
+	            on_press:
 	                app.send_message(msg.text),
-	                msg.text = ''
+                    root.refresh_field(msg)

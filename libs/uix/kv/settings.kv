@@ -1,33 +1,58 @@
 # -*- coding: ut-8 -*-
+<OneLine@BoxLayout>:
+    size_hint: 1, None
+    height: dp(2)
+    canvas:
+        Color:
+            rgba: app.theme_cls.divider_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
 <SettingsScreen>:
     name: 'settings'
 
     BoxLayout:
         orientation: 'vertical'
+        spacing: dp(5), dp(5)
+        padding: dp(5), dp(5), dp(5), 0
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                MDLabel:
+                    size_hint_y: None
+                    text: "Тема: Темная" if app.theme_cls.theme_style == 'Dark' else "Тема: Светлая"
+                    theme_text_color: 'Primary'
+                BoxLayout:
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(15)
+                    padding: 0,dp(5),0,dp(5)
+                    MDFillRoundFlatButton:
+                        text: "Тёмная"
+                        halign: "left"
+                        size_hint_x: None
+                        size: self.size
+                        on_press: 
+                            app.theme_cls.theme_style = "Dark"
+                    MDFillRoundFlatButton:
+                        text: "Светлая"
+                        halign: "left"
+                        size_hint_x: None
+                        size: self.size
+                        on_press: 
+                            app.theme_cls.theme_style = "Light"
 
-        MDRaisedButton:
-            size_hint: None, None
-            size: 3 * dp(48), dp(48)
-            text: 'Сменить тему'
-            on_release: app.theme_pick()
-            opposite_colors: True
-            pos_hint: {'center_x': .5, 'top':1}
-        MDLabel:
-            text:
-                "Текущая тема: " + app.theme_cls.theme_style\
-                + ", " + app.theme_cls.primary_palette
-            theme_text_color: 'Primary'
-            pos_hint: {'center_x': .5, 'top':1}
-            halign: 'center'
-    
+
         BoxLayout:
             height: self.minimum_height
             pos_hint: {'center_x': .5}
             size_hint: (None, None)
             size: self.minimum_size
             top: self.height
-            spacing: (dp(40), 0)
+            spacing: (dp(15), 0)
             padding: [0, 0, 0, 5]
             MDIconButton:
                 icon:'account'
@@ -41,9 +66,7 @@
                 on_press: app.show_dialogs()
             MDIconButton:
                 icon:'settings'
-                theme_text_color: 'Custom'
-                text_color: app.m_press
-                on_press: app.show_settings()
+                theme_text_color: 'Primary'
             MDIconButton:
                 icon:'book'
                 theme_text_color: 'Custom'
