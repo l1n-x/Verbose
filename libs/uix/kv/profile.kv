@@ -1,18 +1,9 @@
 # -*- coding: ut-8 -*-
-#:import storagepath plyer.storagepath
 #:import MDUserAnimationCard kivymd.useranimationcard.MDUserAnimationCard
 <PLabel@MDLabel>:
     theme_text_color: 'Primary'
     size_hint: 1, None
-<OneLine@BoxLayout>:
-    size_hint: 1, None
-    height: dp(2)
-    canvas:
-        Color:
-            rgba: app.theme_cls.divider_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
+
 <Profile>:
     name: 'profile'
 
@@ -27,24 +18,16 @@
                 orientation:'vertical'
                 size_hint_y: None
                 height: self.minimum_height
-                OneLine:
                 PLabel:
                     text: 'Статус: ' + str(app.user_info['status'])
-                OneLine:
                 PLabel:
                     text: 'День рождения: ' + str(app.user_info['born'])
-                OneLine:
                 PLabel:
                     text: 'Страна\Город: ' + str(app.user_info['country']) + ', ' +  str(app.user_info['city'])
-                OneLine:
                 PLabel:
                     text: 'Телефон: ' + str(app.user_info['tel'])
-                OneLine:
                 PLabel:
                     text: 'О себе: ' + str(app.user_info['about'])
-                OneLine:
-                PLabel:
-                    text: 'Хранилище: ' + str(storagepath.get_application_dir())
         
         BoxLayout:
             height: self.minimum_height

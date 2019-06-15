@@ -1,15 +1,6 @@
 # -*- coding: ut-8 -*-
 #:import Window kivy.core.window.Window
 #:import RGBA kivy.utils.rgba
-<OneLine@BoxLayout>:
-    size_hint: 1, None
-    height: dp(2)
-    canvas:
-        Color:
-            rgba: app.theme_cls.divider_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
 
 <Message@FloatLayout>:
     message_id: -1
@@ -19,12 +10,11 @@
     size_hint_y: None
     _size: 0, 0
     Label:
-        id: l
         text: root.text
         font_size:'18sp'
         color: 1,1,1,1
         padding: dp(10),dp(10)
-        size_hint: None,.95
+        size_hint: None, None
         size: root._size
         on_texture_size:
             message = dict(app.messages[root.message_id])
@@ -67,8 +57,6 @@
                 pos_hint: {"center_x":.5,"y":0}
                 on_press: app.scroll_bottom()
 
-        OneLine:
-            
 	    BoxLayout:
 	        size_hint: 1, None
         	height: self.minimum_height       	

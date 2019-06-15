@@ -6,23 +6,28 @@ from sys import argv
 import threading
 import sqlite3
 #Kivy Libraries
-import kivy
+from plyer import notification
 from kivy.animation import Animation
 from kivy.app import App
 from kivy.core.window import Window
-from kivy.factory import Factory
 from kivy.lang import Builder
-from kivy.metrics import dp
-from kivy.properties import ListProperty, ObjectProperty, StringProperty
+from kivy.metrics import Metrics
+from kivy.properties import ListProperty
 from kivy.uix.image import Image
-from kivy.utils import get_color_from_hex, get_hex_from_color, platform
+from kivy.utils import get_hex_from_color, platform
 from kivymd.theming import ThemeManager
-from kivymd.utils.cropimage import crop_image
 #Custom Libraries
 from libs.uix.baseclass.startscreen import StartScreen
 
 directory = path.split(path.abspath(argv[0]))[0]
 Window.softinput_mode = 'below_target' #Сдвигаем экран до текстового поля
+
+def thread(my_func): #Декоратор потока
+    '''@thread - Запуск метода в потоке'''
+    def wrapper (*args, **kwargs):
+        my_thread = threading.Thread(target = my_func, args = args, kwargs = kwargs)
+        my_thread.start()
+    return wrapper
 
 class VerboseApp(App):
     conn = sqlite3.connect(path.join(directory, 'data/user_data'))
@@ -33,29 +38,45 @@ class VerboseApp(App):
     theme_cls.theme_style = cur.fetchone()[0]
     server = ("185.20.225.163",9090)
     messages = ListProperty()
-
+    
     def __init__(self, **kwargs):
         self.title = 'Verbose'
         self.icon = 'data/images/icon.ico'
         super(VerboseApp, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.back_screen)
-        self.userinfo()
-        self.history()
         self.use_kivy_settings = False
         self.list_previous_screens = ['profile']
-        self.window = Window
         self.manager = None
         self.shutdown = False
+        self.msg_count = 0
+        self.userinfo()
+        self.history()
+        self.sock_up()
+        self.receving()
+
+    def sock_up(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.s.connect(self.server)
         self.s.setblocking(0)
-        self.s.sendto(("I'm here!").encode("utf-8"),(self.server))
+        self.s.sendto(("*Status#:Online").encode("utf-8"),(self.server))
+
+    def dyn_text(self, text):
+        text = text.strip(' ')
+        msg_width = round(Window.width / (18*Metrics.density*Metrics.fontscale))
+        for x in range(len(text)):
+            if x%msg_width == 0 and x>0:
+                if text[x] != ' ':
+                    temp = text.rfind(' ',0,x)
+                    text = text[:temp] + '\n' + text[temp+1:]
+                else:
+                    text = text[:x] + '\n' + text[x+1:]
+        return text
 
     def history(self):
         for row in self.cur.execute("SELECT * FROM Messages"):
             self.messages.append({
             'message_id': len(self.messages),
-            'text': row[1],
+            'text': self.dyn_text(row[1]),
             'side': row[2],
             'bg_color': row[3]
             })
@@ -63,10 +84,11 @@ class VerboseApp(App):
 
     def sync_history(self):
         for x in range(self.msg_count,len(self.messages)):
-            self.cur.execute("INSERT INTO Messages(Message, Side, Color) VALUES (?,?,?)",(self.messages[x]['text'],self.messages[x]['side'],self.messages[x]['bg_color']))
+            self.cur.execute("INSERT INTO Messages(Message, Side, Color) VALUES (?,?,?)",(self.messages[x]['text'].replace('\n',' '),self.messages[x]['side'],self.messages[x]['bg_color']))
         self.conn.commit()
+        self.msg_count = len(self.messages)
 
-    def theme(self,style):       
+    def theme(self,style):
         if style == 'Dark':
             self.cur.execute("UPDATE userconfig SET Theme = 'Dark' WHERE Theme = 'Light'")
         elif style == 'Light':
@@ -112,15 +134,10 @@ class VerboseApp(App):
                 pass
         return True
 
-    def on_start(self):
-        self.rect = threading.Thread(target=self.receving,args = ("RecvThread",self.s))
-        self.rect.start()
-
     def on_stop(self):
         self.shutdown = True
         self.conn.close()
-        self.rect.join()
-        self.s.sendto(("I'm leave!").encode("utf-8"),(self.server))
+        self.s.sendto(("*Status#:Offline").encode("utf-8"),(self.server))
         self.s.close()
 
     def show_login(self,*args):
@@ -129,7 +146,7 @@ class VerboseApp(App):
 
     def show_profile(self,*args):
         self.manager.current = 'profile'
-        self.screen.ids.action_bar.title = 'Профиль'
+        self.screen.ids.action_bar.title = 'Пользователь приложения'
             
     def show_dialogs(self,*args):
         self.manager.current = 'dialogs'
@@ -174,10 +191,11 @@ class VerboseApp(App):
     def add_message(self, text, side, color):
         self.messages.append({
             'message_id': len(self.messages),
-            'text': text,
+            'text': self.dyn_text(text),
             'side': side,
             'bg_color': color
         })
+        self.sync_history()
     
     def send_message(self, text):
         self.add_message(text, 'right', '#808080')
@@ -192,20 +210,21 @@ class VerboseApp(App):
         self.add_message(text.decode("utf-8"), 'left', '#4B7F8B')
         self.scroll_bottom()
     
-    def receving(self,name,sock):
+    @thread
+    def receving(self):
         while not self.shutdown:
             try:
                 while True:
-                    data, addr = sock.recvfrom(1024)
+                    data, addr = self.s.recvfrom(1024)
                     if data != '':
                         self.answer(data)
-                    elif data != "I'm here!":
+                    elif data != "*Status#:Online":
                         pass
-                    elif data != "I'm leave!":
+                    elif data != "*Status#:Offline":
                         pass
             except:
                 pass
-
+    
 def main():
     VerboseApp().run()
 
