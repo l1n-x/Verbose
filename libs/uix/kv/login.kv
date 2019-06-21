@@ -1,68 +1,84 @@
-# -*- coding: ut-8 -*-
+# -*- coding: utf-8 -*-
 #:import MDFillRoundFlatButton kivymd.button.MDFillRoundFlatButton
 #:import MDLabel kivymd.label.MDLabel
-#:import MDTextFieldRound kivymd.textfields.MDTextFieldRound
+#:import MDTextField kivymd.textfields.MDTextField
 
 <Login>:
-    name: 'login'
-
-    FloatLayout:
-        canvas:
-            Rectangle:
-                size: self.size
-                pos: self.pos
-                source: 'data/images/background.png'        
+    name: 'login'    
 
     BoxLayout:
         orientation: 'vertical'
-        size_hint: None, None
-        size: self.minimum_size
-        spacing: dp(10)
-        pos_hint: {'center_x': .5, 'center_y':.5}
+        BoxLayout:
+            size_hint_y:.4
+            padding:0,dp(10)
+            Image:
+                source: 'data/images/icon.png'
+                allow_stretch: True
+        GridLayout:
+            rows:5
+            cols:1
+            padding: dp(50)
+            orientation: 'vertical'
+            MDLabel:
+                text: 'Добро пожаловать!'
+                font_size: '20sp'
+                bold: True
+                theme_text_color: 'Primary'
+                size_hint: 1, None
+                halign:'center'
+                size: self.size
+            MDTextField:
+                id: field_phone
+                hint_text: 'Телефон'
+                max_text_lenght: 12
+                required: True
+                multiline: False
+                write_tab: False
+            MDTextField:
+                id: field_password
+                hint_text: 'Пароль'
+                password: True
+                required: True
+                write_tab: False
+                on_text_validate:
+                    root.ids.error_data.text = ''
+                    app.auth(field_phone.text,field_password.text)
 
-        Label:
-            text: 'Добро пожаловать!'
-            font_size: '20sp'
-            bold: True
-            size_hint: None, None
-            pos_hint: {'center_x': .5}
-            size: self.texture_size
-
-        MDTextFieldRound:
-            id: field_phone
-            hint_text: 'Телефон'
-            icon_right: 'phone'
-            icon_type: 'right'
-
-        MDTextFieldRound:
-            id: field_password
-            hint_text: 'Пароль'
-            icon_right: 'key-variant'
-            icon_type: 'right'
-            password: True
-
-        MDLabel:
-            text: 'Забыли пароль?'
-            size_hint_y: None
-            height: self.texture_size[1]
-            color: 1, 1, 1, 1
-            halign: 'center'
-
-        Widget:
-            size_hint_y: None
-            height: dp(10) 
-
-        MDFillRoundFlatButton:
-            id: btn
-            text: 'Войти'
-            pos_hint: {'center_x': .5}
-            on_press:
-                app.show_profile() if root.ids.field_password.text != '' and root.ids.field_phone.text != '' else print('Error')                
-
-            canvas.before:
-                Color:
-                    rgba: 0,0,128/255,.5
-                RoundedRectangle:
-                    size: self.size
-                    pos: self.pos
-                    radius: 17, 17, 17, 17
+            MDLabel:
+                id:error_data
+                text:''
+                font_size: '14sp'
+                opacity:0 if self.text == '' else 1
+                theme_text_color: 'Error'
+                italic: True
+                size:self.size
+            GridLayout:
+                rows:1
+                cols:5
+                spacing:dp(15)
+                padding: dp(15)
+                Widget:
+                MDFillRoundFlatButton:
+                    text: 'Войти'
+                    on_press:
+                        root.ids.error_data.text = ''
+                        app.auth(field_phone.text,field_password.text)                
+                    canvas.before:
+                        Color:
+                            rgba: app.theme_cls.primary_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: 17, 17, 17, 17
+                MDFillRoundFlatButton:
+                    text: 'Регистрация'
+                    on_press:
+                        app.show_registration()
+                    canvas.before:
+                        Color:
+                            rgba: app.theme_cls.primary_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: 17, 17, 17, 17
+                Widget:

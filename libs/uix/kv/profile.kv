@@ -1,8 +1,5 @@
-# -*- coding: ut-8 -*-
+# -*- coding: utf-8 -*-
 #:import MDUserAnimationCard kivymd.useranimationcard.MDUserAnimationCard
-<PLabel@MDLabel>:
-    theme_text_color: 'Primary'
-    size_hint: 1, None
 
 <Profile>:
     name: 'profile'
@@ -10,25 +7,36 @@
     BoxLayout:
         orientation: 'vertical'
         padding: dp(5), 0 , dp(5), 0
-        Image:
-            source: 'data/images/ava_high.png'
-            allow_stretch: True
+        BoxLayout:
+            padding: dp(5),dp(5)
+            Image:
+                source: app.avatar
+                allow_stretch: True
+
         ScrollView:
             BoxLayout:
-                orientation:'vertical'
+                orientation: 'vertical'
+                padding: dp(1), dp(10)
+                spacing: dp(10)
                 size_hint_y: None
                 height: self.minimum_height
-                PLabel:
-                    text: 'Статус: ' + str(app.user_info['status'])
-                PLabel:
-                    text: 'День рождения: ' + str(app.user_info['born'])
-                PLabel:
-                    text: 'Страна\Город: ' + str(app.user_info['country']) + ', ' +  str(app.user_info['city'])
-                PLabel:
-                    text: 'Телефон: ' + str(app.user_info['tel'])
-                PLabel:
-                    text: 'О себе: ' + str(app.user_info['about'])
-        
+                MDLabel:
+                    id:phone
+                    theme_text_color: 'Primary'
+                    size_hint: 1, None
+                MDLabel:
+                    id:location
+                    theme_text_color: 'Primary'
+                    size_hint: 1, None
+                MDLabel:
+                    id:born
+                    theme_text_color: 'Primary'
+                    size_hint: 1, None
+                MDLabel:
+                    id:about
+                    theme_text_color: 'Primary'
+                    size_hint: 1, None
+
         BoxLayout:
             height: self.minimum_height
             pos_hint: {'center_x': .5}

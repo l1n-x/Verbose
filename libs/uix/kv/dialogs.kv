@@ -1,7 +1,8 @@
-# -*- coding: ut-8 -*-
+# -*- coding: utf-8 -*-
 #:import MDList kivymd.list.MDList
 #:import MDLabel kivymd.label.MDLabel
 #:import OneLineAvatarIconListItem kivymd.list.OneLineAvatarIconListItem
+#:import MDFloatingActionButton kivymd.button.MDFloatingActionButton
 
 <DialogsItem@OneLineAvatarIconListItem>:
     MyAvatar:
@@ -12,14 +13,29 @@
 
     BoxLayout:
         orientation: 'vertical'
-
         ScrollView:
             MDList:
                 id: scroll
-                
                 DialogsItem:
-                    text: 'Удаленный пользователь'
-                    on_press: app.show_corresp(self.text)
+                    text: 'Леся Конева([i][u][color=#FF0000]Of[/color][/i][/u])'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Леся Конева') 
+                DialogsItem:
+                    text: 'Ангелина Брагина([i][u][color=#00FF00]On[/color][/i][/u])'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Ангелина Брагина')
+                DialogsItem:
+                    text: 'Олег Ануфриев([i][u][color=#FF0000]Of[/color][/i][/u])'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Олег Ануфриев')  
+                DialogsItem:
+                    text: 'Владислав Казанцев([i][u][color=#00FF00]On[/color][/i][/u])'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Владислав Казанцев')
 
         BoxLayout:
             height: self.minimum_height

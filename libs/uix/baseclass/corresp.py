@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
+from kivy.properties import ListProperty
 
 class Corresp(Screen):
     def refresh_field(self, field):
