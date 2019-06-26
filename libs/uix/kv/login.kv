@@ -34,6 +34,8 @@
                 required: True
                 multiline: False
                 write_tab: False
+                on_text_validate:
+                    field_password.focus = True
             MDTextField:
                 id: field_password
                 hint_text: 'Пароль'

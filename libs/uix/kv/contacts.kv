@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+#:import MDList kivymd.list.MDList
+#:import MDLabel kivymd.label.MDLabel
+#:import OneLineAvatarIconListItem kivymd.list.OneLineAvatarIconListItem
+#:import MDFloatingActionButton kivymd.button.MDFloatingActionButton
+
+<Contacts>:
+    name: 'contacts'
+
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: None
+            height: self.minimum_height
+            MDTextField:
+                id: addcontact
+                hint_text: 'Поиск пользователя'
+                multiline: False
+                write_tab: False
+        ScrollView:
+            MDList:
+                id: contacts
+                DialogsItem:
+                    text: 'Ангелина Брагина)'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Ангелина Брагина')
+                DialogsItem:
+                    text: 'Владислав Казанцев'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Владислав Казанцев')
+                DialogsItem:
+                    text: 'Леся Конева'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Леся Конева')
+                DialogsItem:
+                    text: 'Олег Ануфриев'
+                    font_size: '18sp'
+                    markup: True
+                    on_press: app.show_corresp('Олег Ануфриев')
+                

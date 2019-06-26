@@ -19,24 +19,28 @@
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: last_name.focus = True
                 MDTextField:
                     id: last_name
                     hint_text: 'Фамилия'
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: born.focus = True
                 MDTextField:
                     id: born
                     hint_text: 'Дата рождения (29.06.2019)'
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: country.focus = True
                 MDTextField:
                     id: country
                     hint_text: 'Страна'
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: city.focus = True
                 MDTextField:
                     id: city
                     hint_text: 'Город'
@@ -46,6 +50,7 @@
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: tel.focus = True
                 MDTextField:
                     id: tel
                     hint_text: 'Телефон'
@@ -54,6 +59,7 @@
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: password.focus = True
                 MDTextField:
                     id: password
                     hint_text: 'Пароль'
@@ -61,6 +67,7 @@
                     required: True
                     multiline: False
                     write_tab: False
+                    on_text_validate: about.focus = True
                 MDTextField:
                     id: about
                     hint_text: 'О себе'

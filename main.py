@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
 #Python Libraries
-import threading
-import sqlite3
-import socket
-import json
 import rsa
-from hashlib import sha512
-from os import path, listdir
-from sys import argv
+import stun
+import json
+import socket
+import sqlite3
+import threading
+import pyping
 from datetime import datetime
+from hashlib import sha512
+from os import listdir, path
+from sys import argv
+
 #Kivy Libraries
 import kivy
-from kivy.clock import Clock
 from kivy.animation import Animation
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import Metrics
 from kivy.properties import ListProperty
 from kivy.utils import get_hex_from_color
 from kivymd.theming import ThemeManager
-from kivymd.toolbar import MDToolbar
+from kivymd.toast import toast
+
 #Custom Libraries
 from libs.uix.baseclass.startscreen import StartScreen
 
@@ -34,30 +38,6 @@ def thread(my_func): #Декоратор потока
         my_thread.start()
     return wrapper
 
-class Server:
-    pass
-    # def server_start(self,host,port):
-    #     self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    #     self.s.bind((host,port))
-    #     self.quit = False
-    #     self.clients = []
-    #     self.listening()
-    
-    # @thread
-    # def listening(self):
-    #     while not self.quit:
-    #         try:
-    #             data, addr = self.s.recvfrom(1024)
-    #             if addr not in self.clients:
-    #                 self.clients.append(addr)
-    #             print(data.decode("utf-8"))
-    #             for client in self.clients:
-    #                 if addr != client:
-    #                     self.s.sendto(data,client)
-    #         except:
-    #             self.quit = True
-    #     self.s.close()
-
 class VerboseApp(App):
     today = datetime.strftime(datetime.now(), "[%H:%M] %d %m %Y")
     db = sqlite3.connect(path.join(directory, 'data/user_data'))
@@ -66,7 +46,7 @@ class VerboseApp(App):
     theme_cls = ThemeManager()
     theme_cls.primary_palette = 'Blue'
     theme_cls.theme_style = cur.fetchone()[0]
-    server = ("185.20.225.163",9090) #address/port  signal server
+    server = ("185.20.225.163",9090) #address/port  signal server 185.20.225.163
     messages = ListProperty()
 
     def __init__(self, **kwargs):
@@ -80,10 +60,9 @@ class VerboseApp(App):
         self.shutdown = False
         self.msg_count = 0
         self.username = ''
-        self.user_info = {'status':'','tel':'','location':'','born':'','about':''}
 
     def on_start(self):
-        self.cur.execute("SELECT Logged, tel FROM Session")
+        self.cur.execute("SELECT Logged, phone FROM Session")
         logged,self.uPhone= self.cur.fetchone()
         if logged == 1:
             self.userinfo(self.uPhone)
@@ -94,8 +73,9 @@ class VerboseApp(App):
     def on_stop(self):
         self.shutdown = True
         self.db.close()
-        self.s.sendto(("*Status#:Offline").encode("utf-8"),(self.server))
-        self.s.close()
+        self.sendSock.sendto(bytes(json.dumps({'type': 'Status','msg': 'Offline'}),'utf-8'),(self.server))
+        self.sendSock.close()        
+        # self.servSock.close()
     
     def build(self):
         self.load_all_kv_files(path.join(self.directory, 'libs', 'uix', 'kv'))
@@ -116,11 +96,45 @@ class VerboseApp(App):
         pwd = pwd.hexdigest()
         return pwd
     
+    def rsa_encrypt(self,text,key):
+        text = rsa.encrypt(text,key)
+        return text
+    
+    def rsa_decrypt(self,text):
+        text = rsa.decrypt(text,self.priv_key)
+        return text
+
+    def get_stun(self):
+        self.nat_type, self.external_ip, self.external_port = stun.get_ip_info()
+
     def sock_up(self):
-        self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        self.s.connect(self.server)
-        self.s.setblocking(0)
-        self.s.sendto(("*Status#:Online").encode("utf-8"),(self.server))
+        # self.get_stun()
+        # self.servSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        # self.servSock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR, 1)
+        # self.servSock.bind(('0.0.0.0',self.external_port))
+        self.sendSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        self.sendSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sendSock.setblocking(0)
+        self.sendSock.sendto(bytes(json.dumps({'type': 'Status','msg': 'Online'}),\
+            'utf-8'),(self.server))
+
+    def handshake(self,contact):
+        self.sendSock.sendto(bytes(json.dumps({'type': 'Status','msg': 'Online'})\
+            ,'utf-8'),contact)
+        status = self.servSock.recvfrom(1024)
+        status = json.loads(status.decode('utf-8'))
+        if status['msg'] == 'Online':
+            return 'Online'
+        else:
+            return 'Offline'
+
+    def ping_contact(self, addr):
+        res = pyping.ping(addr[0])
+        if res.ret_code == 0:
+            self.handshake(addr)
+        else:
+            self.sendSock.sendto(bytes(json.dumps({'type': 'Status','msg': 'Online',\
+                 'to':addr}),'utf-8'),self.server)
 
     def dyn_text(self, text):
         text = text.strip(' ')
@@ -140,7 +154,7 @@ class VerboseApp(App):
 
     def history(self):
         del_history = []
-        for row in self.cur.execute("SELECT * FROM Messages WHERE UserFrom = ? OR UserTo = ?",(self.uPhone,self.uPhone)):
+        for row in self.cur.execute("SELECT * FROM Messages"):#WHERE UserFrom = ? OR UserTo = ?",(self.uPhone,self.uPhone)):
             db_date = row[4].split(' ')
             isdate = self.today.split(' ')
             year = 0
@@ -175,16 +189,16 @@ class VerboseApp(App):
         self.db.commit()
 
     def userinfo(self,tel):
-        self.cur.execute("SELECT * FROM Users WHERE tel = ?",(tel,))
+        self.cur.execute("SELECT * FROM Users WHERE phone = ?",(tel,))
         CurrUser = self.cur.fetchone()
-        self.cur.execute("UPDATE Userinfo SET tel=?, first_name=?, last_name=?, location=?, born=?, about=?", (CurrUser[0],CurrUser[3],CurrUser[4],CurrUser[5],CurrUser[6],CurrUser[7]))
+        self.cur.execute("UPDATE Userinfo SET first_name=?, last_name=?, location=?, born=?, about=?", (CurrUser[3],CurrUser[4],CurrUser[5],CurrUser[6],CurrUser[7]))
         self.cur.execute("SELECT * FROM Userinfo")
         profile = self.cur.fetchone()
         self.username = profile[0] + ' ' + profile[1]
         self.screen.ids.profile.ids.born.text = 'Дата рождения: ' + str(profile[2])
         self.screen.ids.profile.ids.location.text = 'Страна/Город: ' + str(profile[3])
-        self.screen.ids.profile.ids.phone.text = 'Телефон: ' + str(profile[4])
-        self.screen.ids.profile.ids.about.text = 'О себе: ' + str(profile[5])
+        self.screen.ids.profile.ids.phone.text = 'Телефон: ' + str(self.uPhone)
+        self.screen.ids.profile.ids.about.text = 'О себе: ' + str(profile[4])
 
     def back_screen(self, instance, keyboard, keycode, text, modifiers):
         '''1000 - "Назад", 1001 - Меню на андроид, 27 - "Esc" на компьютере'''
@@ -208,11 +222,19 @@ class VerboseApp(App):
             self.pub_key, self.priv_key = keys
 
     def auth(self,tel,pwd):
-        pwd = self.hash(tel,pwd)        
-        self.cur.execute('SELECT * FROM users WHERE tel=? AND password=?',(str(tel),str(pwd)))
+        pwd = self.hash(tel,pwd)
+        # sendauth = {
+        #     'type':'Registration',
+        #     'Phone':tel,
+        #     'Password':pwd
+        # }
+        # self.sendSock.sendto(bytes(json.dumps(sendauth),'utf-8'),self.server)
+        # result = self.sendSock.recvfrom(1024)
+        # result = json.loads(result.decode('utf-8'))
+        self.cur.execute('SELECT * FROM Users WHERE phone=? AND passwd=?',(str(tel),str(pwd)))
         result = self.cur.fetchall()
-        if result:
-            self.cur.execute("UPDATE Session SET Logged = 1, tel = ?, password = ?",(str(tel),str(pwd)))
+        if result['User'] == 'Exist':
+            self.cur.execute("UPDATE Session SET Logged = 1, phone = ?, passwd = ?",(str(tel),str(pwd)))
             self.db.commit()
             self.uPhone = tel
             self.keys()
@@ -232,15 +254,30 @@ class VerboseApp(App):
                 else:
                     location = country + ',' + city
                     self.keys()
-                    sql = ("INSERT INTO Users(tel,password,pubkey,first_name,last_name,location,born,about) VALUES (?,?,?,?,?,?,?,?)")
-                    self.cur.execute(sql,(tel,(self.hash(tel,password)),self.pub_key,fname,lname,location,born,about))
-                    self.db.commit()
+                    # temp = {
+                    #     'type':'Registration',
+                    #     'Phone':tel,
+                    #     'Password':self.hash(tel,password),
+                    #     'Pubkey':str(self.pub_key),
+                    #     'FName':fname,
+                    #     'LName':lname,
+                    #     'Location':location,
+                    #     'Born':born,
+                    #     'About':about
+                    # }
+                    # self.sendSock.sendto(bytes(json.dumps(temp),'utf-8'),self.server)
+                    reg_db = sqlite3.connect(path.join(self.directory, 'data/server'))
+                    reg_cur = reg_db.cursor()
+                    sql = ("INSERT INTO Users(phone,passwd,pubkey,first_name,last_name,location,born,about) VALUES (?,?,?,?,?,?,?,?)")
+                    self.reg_cur.execute(sql,(tel,(self.hash(tel,password)),self.pub_key,fname,lname,location,born,about))
+                    self.reg_db.commit()
+                    toast('Регистрация успешна!')
                     self.show_login()
         else:
             self.screen.ids.registration.ids.error_data.text = 'Проверьте правильность заполнения полей'
 
     def logout(self):
-        self.cur.execute("UPDATE Session SET Logged = 0, tel = 'Не заполнено', password = 'Не заполнено', pubkey = ?, privkey = ?",(None,None))
+        self.cur.execute("UPDATE Session SET Logged = 0, phone = 'Не заполнено', passwd = 'Не заполнено', pubkey = ?, privkey = ?",(None,None))
         self.db.commit()
         self.msg_count = 0
         self.screen.ids.corresp.ids.msg_store.clear_widgets()
@@ -263,7 +300,7 @@ class VerboseApp(App):
             
     def show_dialogs(self,*args):
         self.manager.current = 'dialogs'
-        self.screen.ids.action_bar.title = 'Сообщения'
+        self.screen.ids.action_bar.title = 'Диалоги'
           
     def show_corresp(self,username,*args):
         self.manager.current = 'corresp'
@@ -315,12 +352,12 @@ class VerboseApp(App):
         self.scroll_bottom()
         try:
             if text != "":
-                self.s.sendto(text.encode("utf-8"),(self.server))
+                self.sendSock.sendto(bytes(json.dumps({'type':'Message','msg': text}),'utf-8'),(self.server))
         except:
             pass
         
     def answer(self,text):
-        self.add_message(text.decode("utf-8"), 'left', '#4B7F8B')
+        self.add_message(text, 'left', '#4B7F8B')
         self.scroll_bottom()
     
     @thread
@@ -328,13 +365,12 @@ class VerboseApp(App):
         while not self.shutdown:
             try:
                 while True:
-                    data, addr = self.s.recvfrom(1024)
-                    if data != '':
-                        self.answer(data)
-                    elif data != "*Status#:Online":
-                        pass
-                    elif data != "*Status#:Offline":
-                        pass
+                    data, addr = self.sendSock.recvfrom(1024)
+                    data = json.loads(data.decode('utf-8'))
+                    if data['type'] == 'Message':
+                        self.answer(data['msg'])
+                    elif data['type'] == "Status":
+                        print(data['msg'])
             except:
                 pass
     
@@ -342,5 +378,5 @@ def main():
     VerboseApp().run()
 
 if __name__ == '__main__':
-    # Window.size = (360,640)
+    Window.size = (360,640)
     main()

@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+<Sms>:
+    name: 'sms'
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(5), dp(5)
+        padding: dp(5), dp(5), dp(5), 0
+        Widget:
+        TextInput:
+            size_hint: .5,.45
+            font_size: '50sp'
+            pos_hint: {'center_x':.5}
+        Widget:
+        MDFillRoundFlatButton:
+            text: "Отправить код"
+            pos_hint:{'center_x':.5}
+        Widget:
