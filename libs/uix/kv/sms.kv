@@ -7,6 +7,7 @@
         padding: dp(5), dp(5), dp(5), 0
         Widget:
         TextInput:
+            id:sms-code
             size_hint: .5,.45
             font_size: '50sp'
             pos_hint: {'center_x':.5}
@@ -14,4 +15,5 @@
         MDFillRoundFlatButton:
             text: "Отправить код"
             pos_hint:{'center_x':.5}
+            #on_press: app.check_sms(sms-code.text)
         Widget:

@@ -4,7 +4,7 @@ import json
 # import sys, os
 host = socket.gethostbyname(socket.gethostname())
 port = 9090
-db = sqlite3.connect('/root/server.db')
+db = sqlite3.connect('/home/l1n_x/Python/Verbose/data/server.db')
 cs = db.cursor()
 clients = []
 s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)

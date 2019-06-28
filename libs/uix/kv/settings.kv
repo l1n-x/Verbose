@@ -8,10 +8,8 @@
         Rectangle:
             size: self.size
             pos: self.pos
-
 <SettingsScreen>:
     name: 'settings'
-
     BoxLayout:
         orientation: 'vertical'
         spacing: dp(5), dp(5)
@@ -50,7 +48,6 @@
                     size: self.size
                     on_press: 
                         app.logout()
-
         BoxLayout:
             height: self.minimum_height
             pos_hint: {'center_x': .5}
